@@ -1,124 +1,106 @@
-# Gestion-de-projet-M1-IDL-UGA
+# Accessible Medical Protocols for Non-French-Speaking Patients
 
-Projet de Master 1 Industrie de la langue, UGA (2025-2026).
+A pipeline that turns medical protocols in French into simplified, translated and audio versions for patients with gestational diabetes who don't speak French.
 
-Automatisation de la traduction et de l'accessibilité de protocoles médicaux pour patientes allophones atteintes de diabète gestationnel, avec simplification FALC et audio multilingue.
+Master 1 project, Language Industries (NLP), Université Grenoble Alpes, 2025–2026.
+Programming part: Darya ZDRELYUK
 
-## Contexte du projet
+## Why
 
-### Problématique
+The endocrinology department at Hôpital Nord in Marseille regularly treats patients with gestational diabetes who don't speak French. The language barrier, combined with medical jargon, makes it hard for them to:
 
-Le service d'endocrinologie de l'Hôpital Nord de Marseille accueille régulièrement des patientes allophones atteintes de diabète gestationnel. La barrière linguistique, combinée à la complexité des termes médicaux, met en danger l'autonomie des patientes pour :
-- Réaliser des gestes techniques (injections, mesures glycémiques)
-- Comprendre et appliquer les protocoles diététiques
-- Assurer un suivi médical sécurisé
+- do technical tasks on their own (injections, blood glucose checks)
+- understand and follow dietary guidelines
+- keep up with their medical follow-up safely
 
-### Solution proposée
+## What it does
 
-Pipeline automatisé qui transforme les protocoles médicaux français en documents multilingues accessibles.
+The pipeline takes a French protocol (`.txt`, `.pdf` or `.docx` formats) and:
 
-## Fonctionnement actuel
+1. Simplifies it into FALC (*Facile à lire et à comprendre*, the French easy-to-read standard)
+2. Translates it into the selected languages
+3. Generates an audio version of each text
+4. Publishes each audio on GitHub Pages with a player page and a QR code
+5. Builds one Word document per version (FALC + each translation)
 
-Le programme principal est `scripts/main.py`.
+For example, FALC + 4 languages gives 5 Word documents per protocol.
 
-Pipeline :
+## Audio player
 
-1. Lecture du document d'entrée (`.txt`, `.pdf`, `.docx`)
-2. Simplification FALC
-3. Traductions multilingues
-4. Génération des audios
-5. Upload GitHub Pages de l'audio et QR + page HTML player
-6. Génération de documents finaux : 1 DOCX par version de texte (FALC + traductions choisies)
+Each audio file gets its own simple HTML player page:
 
-En pratique, avec FALC + 4 langues, on obtient 5 DOCX pour chaque fiche.
+- large pictogram buttons: Play, Pause, −5s, +5s
+- a red Pause button
+- a title in the patient's language
 
-## Formats d'entrée supportés
+The QR code and link in each Word document open this page.
 
-- `.txt`
-- `.pdf`
-- `.docx`
-
-## Player HTML et QR
-
-Pour chaque audio, le script crée une page player HTML avec :
-- Gros boutons pictogrammes (Play, Pause, -5s, +5s)
-- Bouton Pause en rouge
-- Titre adapté à la langue (ex : russe)
-
-Le QR code et le lien dans le document pointent vers cette page HTML player.
-
-## Structure du projet
+## Project structure
 
 ```
-protocoles-multilingues/
-├── scripts/               # Code source
-│   ├── main.py           # Pipeline principal
-│   ├── falc.py           # Simplification FALC
-│   ├── traduction.py     # Traductions
-│   ├── generer_audio.py  # Text-to-Speech
-│   ├── upload_audio.py   # GitHub Pages
-│   ├── qr.py             # QR codes
-│   └── docx_builder.py   # Documents Word
+├── scripts/
+│   ├── main.py            # runs the full pipeline
+│   ├── falc.py            # FALC simplification
+│   ├── traduction.py      # translation
+│   ├── generer_audio.py   # text-to-speech
+│   ├── upload_audio.py    # publishing to GitHub Pages
+│   ├── qr.py              # QR codes
+│   ├── docx_builder.py    # Word documents
+│   ├── config.py          # API keys and settings
+│   ├── requirements.txt   # dependencies required
 │
-├── docs/                  # Données et résultats
-│   ├── input/            # Documents originaux
-│   ├── falc/             # Textes simplifiés
-│   ├── traductions/      # Traductions
-│   ├── audio/            # Fichiers MP3
-│   ├── qr/               # QR codes
-│   └── docx/             # Documents finaux
+├── docs/                  # inputs and outputs (also served by GitHub Pages)
+│   ├── input/             # original protocols
+│   ├── falc/              # simplified texts
+│   ├── traductions/       # translations
+│   ├── audio/             # MP3 files
+│   ├── qr/                # QR codes
+│   └── docx/              # final Word documents
 │
-├── config.py             # Configuration
-├── requirements.txt      # Dépendances
-└── README.md            # Documentation
+├── cahier_fr.md          # Documentation in french
+└── README.md             # Documentation
 ```
 
-## Installation
+## Setup
+
+Requirements: Python 3.8+, Git, and a GitHub account (to host the audio files).
+
+**1. Clone and install**
 
 ```bash
-# Cloner le repository
-git clone https://github.com/VOTRE_USERNAME/protocoles-multilingues.git
-cd protocoles-multilingues
+git clone https://github.com/daryazdr/Gestion-de-projet-M1-IDL-UGA.git
+cd Gestion-de-projet-M1-IDL-UGA
 
-# Créer environnement virtuel
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# OU
-venv\Scripts\activate  # Windows
+source venv/bin/activate      # Windows: venv\Scripts\activate
 
-# Installer dépendances
 pip install -r requirements.txt
 ```
 
-## Prérequis
+**2. Add your API keys**
 
-- Python 3.8+
-- Git
-- Compte GitHub (pour hébergement audio)
-
-## Configuration
-
-Compléter `scripts/config.py` avec vos clés/API :
+Fill in `scripts/config.py`:
 
 - `GROQ_API_KEY`
 - `DEEPL_API_KEY`
-- `MICROSOFT_TRANSLATOR_KEY`
-- `MICROSOFT_TRANSLATOR_REGION`
+- `MICROSOFT_TRANSLATOR_KEY` and `MICROSOFT_TRANSLATOR_REGION`
 - `GITHUB_TOKEN`
-- `GITHUB_REPO` (format `owner/repo` ou URL GitHub)
+- `GITHUB_REPO` (`owner/repo` or the repo URL)
 - `GITHUB_PAGES_BASE_URL`
 
-Note : Le code utilise la branche `main` et publie les contenus dans `docs/` pour GitHub Pages.
+**3. Set up GitHub Pages**
 
-## Lancer le pipeline complet
+The audio files and player pages are pushed to the `docs/` folder on the `main` branch, so GitHub Pages needs to serve from `main` / `docs`.
+
+## Run
 
 ```bash
 python scripts/main.py
 ```
 
-Le fichier d'entrée est défini en bas de `scripts/main.py`.
+The input file is set at the bottom of `scripts/main.py`. Change the path there to process another protocol.
 
-## Remarques
+## Notes
 
-- Le programme contient des pauses de vérification manuelle pour certaines étapes
-- Si un format n'est pas lisible, vérifier l'encodage/fichier source
+- The pipeline pauses at some steps so you can check the output by hand before continuing.
+- If a file can't be read, check its encoding or the source file itself.
